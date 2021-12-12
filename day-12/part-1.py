@@ -10,11 +10,9 @@ for l in f:
   edges[node1].append(node2)
   edges[node2].append(node1)
 
-visited = []
 paths = []
 def to_end(node, path):
   global paths
-  global visited
 
   print(node, path)
   if not node.isupper():
