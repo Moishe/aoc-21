@@ -28,28 +28,22 @@ for l in f:
     height = max(y, height)
     locations[(x,y)] += 1
 
-print_locations()
-print()
-
 for (idx, fold) in enumerate(folds):
   (axis, coordinate) = fold
-  if axis == 'y':
-    new_locations = defaultdict(int)
-    for location in locations:
-      (x,y) = location
+  new_locations = defaultdict(int)
+  for location in locations:
+    (x,y) = location
+    if (axis == 'y'):
       if y >= coordinate:
         y = coordinate - (y - coordinate)
-      new_locations[(x,y)] += 1
-    locations = new_locations
-    height = coordinate - 1
-  elif axis == 'x':
-    new_locations = defaultdict(int)
-    for location in locations:
-      (x,y) = location
+    else:
       if x >= coordinate:
         x = coordinate - (x - coordinate)
-      new_locations[(x,y)] += 1
-    locations = new_locations
+    new_locations[(x,y)] += 1
+  locations = new_locations
+  if (axis == 'y'):
+    height = coordinate - 1
+  else:
     width = coordinate - 1
 
   if idx == 1:
