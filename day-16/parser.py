@@ -12,9 +12,12 @@ def get_bits(bytes, offset, count):
     return (bytes[start_byte] & mask) >> shift
   else:
     start_value = (bytes[start_byte] & (pow(2, 8 - start_bit) - 1))
-    end_value = ((bytes[end_byte] & ((pow(2, end_bit) - 1)) << (8 - end_bit))) >> (8 - end_bit)
-    if (end_byte == start_byte + 1):
-      return (start_value << end_bit) + end_value
+    end_value = ((bytes[end_byte] & ((pow(2, end_bit) - 1)) << (8 - end_bit))) >> (8 - end_bit)    
+
+    value = start_value
+    for i in range(start_byte + 1, end_byte):
+      value = value << 8 + bytes[i]
+    return (value << end_bit) + end_value
 
 def convert_hex_to_bytes(value):
   bytes = []
@@ -24,11 +27,18 @@ def convert_hex_to_bytes(value):
   return bytes
 
 def parse_literal(bytes):
+  value = 0
   offset = 6
   more_bit = 1
   while more_bit:
-    more_bit = parser.get_bits(bytes, offset, 1)
-    
+    more_bit = get_bits(bytes, offset, 1)
+    value = (value << 4) | get_bits(bytes, offset + 1, 4)
+    offset += 5
+
+  return value
+
+def parse_operator(bytes):
+  pass
 
 def parse_value(value):
   print(value)
@@ -41,6 +51,9 @@ def parse_value(value):
   type = bytes[0] >> 2 & 7
 
   if type == 4:
-    return parse_literal(bytes)
+    return ([version], parse_literal(bytes))
+  else:
+    (versions, result) = parse_operator(bytes)
+    return (versions + [version], result)
 
 

@@ -33,8 +33,25 @@ class TestParse(unittest.TestCase):
         bit_value = parser.get_bits(bytes, 17, 4)
         self.assertEqual(bit_value, 5)
 
-    def test_value(self):
-        parser.parse_value('D2FE28')
+    def test_get_bits_operator_type_0(self):
+        bytes = parser.convert_hex_to_bytes('38006F45291200')
+
+        bit_value = parser.get_bits(bytes, 0, 3)
+        self.assertEqual(bit_value, 1)
+
+        bit_value = parser.get_bits(bytes, 3, 3)
+        self.assertEqual(bit_value, 6)
+
+        bit_value = parser.get_bits(bytes, 6, 1)
+        self.assertEqual(bit_value, 0)
+
+        bit_value = parser.get_bits(bytes, 7, 15)
+        self.assertEqual(bit_value, 27)
+
+    def test_literal(self):
+        (version, value) = parser.parse_value('D2FE28')
+        self.assertEqual(value, 2021)
+
 
 if __name__ == '__main__':
     unittest.main()
