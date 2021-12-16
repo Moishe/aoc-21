@@ -1,3 +1,5 @@
+import functools
+
 highlight = '\033[1m'
 endc = '\033[0m'
 
@@ -45,7 +47,7 @@ def parse_operator(bytes, start_bit):
     while offset < start_bit + 16 + length:
       (versions, offset, results) = parse_value(bytes, offset)
       all_versions.extend(versions)
-      all_results.extend(results)
+      all_results.append(results)
   else:
     count = get_bits(bytes, start_bit + 1, 11)
     print_highlight(bytes, start_bit + 1, start_bit + 12, "Parsing count operator %d" % count)
@@ -54,14 +56,13 @@ def parse_operator(bytes, start_bit):
     while current < count:
       (versions, offset, results) = parse_value(bytes, offset)
       all_versions.extend(versions)
-      all_results.extend(results)
+      all_results.append(results)
       current += 1
 
   return (all_versions, offset, all_results)
 
 def parse_value(bytes, start_bit=0):
   versions = []
-  results = []
 
   # first 3 bits are the version
   version = get_bits(bytes, start_bit, 3)
@@ -74,11 +75,24 @@ def parse_value(bytes, start_bit=0):
   if type == 4:
     (new_offset, result) = parse_literal(bytes, start_bit + 6)
     versions = [version]
-    results = [result]
   else:
     (versions, new_offset, results) = parse_operator(bytes, start_bit + 6)
+    if type == 0: # sum
+      result = sum(results)
+    elif type == 1: # product
+      result = functools.reduce(lambda x,y: x * y, results)
+    elif type == 2: # min
+      result = min(results)
+    elif type == 3: # max
+      result = max(results)
+    elif type == 5: # greater than
+      result = 1 if results[0] > results[1] else 0
+    elif type == 6: # less than
+      result = 1 if results[0] < results[1] else 0
+    elif type == 7: # equal to
+      result = 1 if results[0] == results[1] else 0
     versions = [version] + versions
 
-  return (versions, new_offset, results)
+  return (versions, new_offset, result)
 
 
