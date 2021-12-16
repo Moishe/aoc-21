@@ -26,34 +26,48 @@ def convert_hex_to_bytes(value):
     bytes.append(byte)
   return bytes
 
-def parse_literal(bytes):
+def parse_literal(bytes, start_bit):
   value = 0
-  offset = 6
+  offset = start_bit
   more_bit = 1
   while more_bit:
     more_bit = get_bits(bytes, offset, 1)
     value = (value << 4) | get_bits(bytes, offset + 1, 4)
     offset += 5
 
-  return value
+  return (offset, value)
 
-def parse_operator(bytes):
-  pass
+def parse_operator(bytes, start_bit):
+  all_versions = []
+  all_results = []
+  length_type = get_bits(bytes, start_bit, 1)
+  if length_type == 0:
+    length = get_bits(bytes, start_bit + 1, 15)
+    offset = start_bit + 16
+    while offset < start_bit + 16 + length:
+      (versions, offset, results) = parse_value(bytes, offset)
+      all_versions.extend(versions)
+      all_results.extend(results)
+  return (all_versions, offset, all_results)
 
-def parse_value(value):
-  print(value)
-  bytes = convert_hex_to_bytes(value)
+def parse_value(bytes, start_bit=0):
+  versions = []
+  results = []
 
   # first 3 bits are the version
-  version = bytes[0] >> 5
+  version = get_bits(bytes, start_bit, 3)
 
   # next 3 bits are the type
-  type = bytes[0] >> 2 & 7
+  type = get_bits(bytes, start_bit + 3, 3)
 
   if type == 4:
-    return ([version], parse_literal(bytes))
+    (new_offset, result) = parse_literal(bytes, start_bit + 6)
+    versions = [version]
+    results = [result]
   else:
-    (versions, result) = parse_operator(bytes)
-    return (versions + [version], result)
+    (versions, new_offset, results) = parse_operator(bytes, start_bit + 6)
+    versions = [version] + versions
+
+  return (versions, new_offset, results)
 
 
