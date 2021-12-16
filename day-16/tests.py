@@ -57,7 +57,31 @@ class TestParse(unittest.TestCase):
         bytes = parser.convert_hex_to_bytes('38006F45291200')
         (versions, new_offset, results) = parser.parse_value(bytes)
         self.assertEqual(versions, [1, 6, 2])
-        self.assertEquals(results, [10, 20])
+        self.assertEqual(results, [10, 20])
+
+    def test_operator_type_1(self):
+        bytes = parser.convert_hex_to_bytes('EE00D40C823060')
+        (versions, new_offset, results) = parser.parse_value(bytes)
+        self.assertEqual(versions, [7, 2, 4, 1])
+        self.assertEqual(results, [1, 2, 3])
+
+        bytes = parser.convert_hex_to_bytes('8A004A801A8002F478')
+        (versions, new_offset, results) = parser.parse_value(bytes)
+        self.assertEqual(versions, [4, 1, 5, 6])
+        self.assertEqual(results, [15])
+
+        bytes = parser.convert_hex_to_bytes('620080001611562C8802118E34')
+        (versions, new_offset, results) = parser.parse_value(bytes)
+        self.assertEqual(versions, [3, 0, 0, 5, 1, 0, 3])
+        self.assertEqual(results, [10, 11, 12, 13])
+
+        bytes = parser.convert_hex_to_bytes('C0015000016115A2E0802F182340')
+        (versions, new_offset, results) = parser.parse_value(bytes)
+        self.assertEqual(sum(versions), 23)
+
+        bytes = parser.convert_hex_to_bytes('A0016C880162017C3686B18A3D4780')
+        (versions, new_offset, results) = parser.parse_value(bytes)
+        self.assertEqual(sum(versions), 31)
 
 if __name__ == '__main__':
     unittest.main()
