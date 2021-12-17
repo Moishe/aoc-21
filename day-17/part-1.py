@@ -63,5 +63,5 @@ print("Total successes %d" % len(successes))
 
 f = open('results.csv', 'w')
 for success in successes:
-  f.write(','.join([str(x) for x in list(success)]))
+  f.write('[' + ','.join([str(x) for x in list(success)]) + '],')
   f.write('\n')
