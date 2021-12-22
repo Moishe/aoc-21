@@ -10,21 +10,12 @@ for d1 in range(1,4):
     for d3 in range(1,4):
       move_map[d1 + d2 + d3] += 1
 
-print(len(move_map.values()), sum(move_map.values()))
-
-# will contain:
-# positions
-# scores
-# paths to get here
-results = defaultdict(lambda: defaultdict(int))
-
 wins = [0,0]
 
-# let's just start a simulation?
 def split_universe(positions, scores, turn, instances):
   global wins
   for (result, times) in move_map.items():
-    # i'm sure there's a less ugly way to do this
+    # i'm sure there's a less ugly way to do this (there is, just use a list not a tuple)
     if turn == 0:
       new_positions = ((positions[0] + result) % 10, positions[1])
       new_scores = (scores[0] + (new_positions[0] - 1) % 10 + 1, scores[1])
@@ -37,5 +28,5 @@ def split_universe(positions, scores, turn, instances):
     else:
       split_universe(new_positions, new_scores, (turn + 1) % 2, instances * times)
 
-split_universe((4,8), (0,0), 0, 1)
+split_universe(positions, (0,0), 0, 1)
 print(wins)
